@@ -41,5 +41,5 @@ If running Sequence, note that the game will start in fullscreen mode. Press F11
 ## Limitation
 In order for students to import their customized python file, they will have to add their team name into the path. For example:
 ```
-import agents.staff_team_random.timeout
+import agents.staff_team_random.timeout   阿卜杜
 ```
