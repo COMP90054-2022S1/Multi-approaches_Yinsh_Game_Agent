@@ -1,6 +1,6 @@
 # Game Interface
 
-The idea is to design a framework that can integrate different turn based multiplayer games.
+The idea. is to design a framework that can integrate different turn based multiplayer games.
 
 ## Guide
 
