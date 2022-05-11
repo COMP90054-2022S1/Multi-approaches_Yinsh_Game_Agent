@@ -9,7 +9,7 @@
 # IMPORTS AND CONSTANTS ----------------------------------------------------------------------------------------------#
 
 
-import time, random, heapq
+import time, random, heapq, re
 from Yinsh.yinsh_model import YinshGameRule 
 from copy import deepcopy
 import sys
@@ -115,7 +115,7 @@ class myAgent():
         best_g = dict()
         while not queue.isEmpty() and time.time()-start_time < THINKTIME:
             state, gn, path = queue.pop() # Pop the next node (state, path) in the queue.
-            key = "".join(map(str,state.board))
+            key = re.sub(r'\D', "", "".join(map(str,state.board)))
             if (key not in best_g or (gn < best_g[key])):
                 best_g[key] = gn
                 new_actions = self.GetActions(state) # Obtain new actions available to the agent in this state.
