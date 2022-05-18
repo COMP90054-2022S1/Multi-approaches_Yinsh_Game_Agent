@@ -27,6 +27,7 @@ class myAgent():
         self.game_rule = YinshGameRule(2) # Agent stores an instance of GameRule, from which to obtain functions.
         # More advanced agents might find it useful to not be bound by the functions in GameRule, instead executing
         # their own custom functions under GetActions and DoAction.
+        
 
     # Generates actions from this state.
     def GetActions(self, state):
@@ -43,7 +44,7 @@ class myAgent():
     def SelectAction(self, actions, rootstate):
         start_time = time.time()
         queue      = deque([ (deepcopy(rootstate),[]) ]) # Initialise queue. First node = root state and an empty path.
-        
+        print(rootstate.board)
         # Conduct BFS starting from rootstate.
         while len(queue) and time.time()-start_time < THINKTIME:
             state, path = queue.popleft() # Pop the next node (state, path) in the queue.
@@ -54,7 +55,7 @@ class myAgent():
                 next_path  = path + [a]                   # Add this action to the path.
                 reward     = self.DoAction(next_state, a) # Carry out this action on the state, and note any reward.
                 if reward:
-                    print(f'Move {self.turn_count}, path found:', next_path)
+                    print(f'Move {len(next_path)}, path found:', next_path)
                     return next_path[0] # If this action was rewarded, return the initial action that led there.
                 else:
                     queue.append((next_state, next_path)) # Else, simply add this state and its path to the queue.

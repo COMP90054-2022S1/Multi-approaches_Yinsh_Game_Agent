@@ -112,7 +112,8 @@ class Game:
                     try: 
                         selected = func_timeout(WARMUP if action_counter < len(self.agents) else self.time_limit, 
                                                 agent.SelectAction,args=(actions_copy, gs_copy))
-                    except:
+                    except Exception as e:
+                        print(e)
                         selected = None
                     if not selected in actions:
                         #TODO: Let user know more specifically what caused the timeout.
