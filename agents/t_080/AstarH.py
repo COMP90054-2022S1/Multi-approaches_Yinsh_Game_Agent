@@ -80,16 +80,4 @@ if __name__ == '__main__':
 with open('astar_hvalue.json', 'w',encoding='utf-8') as outfile:
     json.dump(result, outfile,indent = 4)
 
-##test below
-with open('astar_hvalue.json', 'r',encoding='utf-8') as outfile:
-    result = json.load(outfile)
-#print(result)
-#print(result.get('000000'))
-from priorityQ import PriorityQueue
-queue = PriorityQueue()
-queue.push(1,1)
-queue.push(2,1)
-queue.push(3,1)
-print(queue.pop())
-print(queue.pop())
-print(queue.pop())
+

@@ -19,17 +19,18 @@ diagPoint = [(0,0),(0,0),(0,0),(0,0),(0,0),(2,6),(1,7),(0,7),(0,7),(0,7),(0,6),(
 class myAgent:
     def __init__(self,_id):
         self.id = _id                     # Remember agent id
+        self.weight = [1,2,3,4]
         self.game_rule = YinshGameRule(2) # Number of agents
         
-        self.weight = [0,0,0,0]
+        
         self.round = 0
         
-        with open("agent/t_080/astar_util.json", 'r', encoding = 'utf-8') as fw:
+        with open('agents/t_080/astar_hvalue.json', 'r', encoding = 'utf-8') as fw:
             self.hValue = json.load(fw)
             
-        with open("agent/t_080/RL_weight.json", 'r', encoding = 'utf-8') as fw:
+        """with open('agents/t_080/RL_weight.json', 'r', encoding = 'utf-8') as fw:
             self.weight = json.load(fw)['weight']
-        print(self.weight)
+        print(self.weight)"""
         
     
     # Generate action from this state

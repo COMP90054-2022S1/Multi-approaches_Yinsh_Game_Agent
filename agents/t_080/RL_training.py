@@ -27,11 +27,11 @@ class myAgent:
         self.weight = [0,0,0,0]
         self.round = 0
         
-        with open("agent/t_080/astar_util.json", 'r', encoding = 'utf-8') as fw:
+        with open('agents/t_080/astar_hvalue.json', 'r', encoding = 'utf-8') as fw:
             self.hValue = json.load(fw)
             
-        with open("agent/t_080/RL_weight.json", 'r', encoding = 'utf-8') as fw:
-            self.weight = json.load(fw)['weight']
+        """with open("agent/t_080/RL_weight.json", 'r', encoding = 'utf-8') as fw:
+            self.weight = json.load(fw)['weight']"""
         
     
     # Generate action from this state
@@ -169,7 +169,7 @@ class myAgent:
         for i in range(len(features)):
             self.weight[i] += alpha * delta_value * features[i]
             
-        with open("agants/t_080/RL_weight.json",'r',encoding='utf-8') as fw:
+        with open('agants/t_080/RL_weight.json','w',encoding='utf-8') as fw:
             json.dump({"weight":self.weight}, fw, index = 4, ensure_ascii=False)
         
         print("TIME: ", time.time() - start_time)
