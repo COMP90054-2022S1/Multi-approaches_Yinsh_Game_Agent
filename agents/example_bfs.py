@@ -14,7 +14,7 @@ from Yinsh.yinsh_model import YinshGameRule
 from copy import deepcopy
 from collections import deque
 
-THINKTIME = 0.95
+THINKTIME = 0.85
 
 
 # FUNCTIONS ----------------------------------------------------------------------------------------------------------#

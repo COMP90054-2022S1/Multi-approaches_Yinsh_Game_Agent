@@ -1,19 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon May 23 15:32:56 2022
-
-@author: pc-user
-"""
-
+from concurrent.futures.process import _MAX_WINDOWS_WORKERS
 import time, random
 from Yinsh.yinsh_model import YinshGameRule
 from copy import deepcopy
 import sys
-sys.path.append('agent/t_080/')
+sys.path.append('agents/t_080/')
 import json
 
 THINKTIME = 0.9
-
 
 class myAgent():
     def __init__(self, _id):
@@ -22,7 +15,7 @@ class myAgent():
         # More advanced agents might find it useful to not be bound by the functions in GameRule, instead executing
         # their own custom functions under GetActions and DoAction.
         
-        self.weight = [10,5,-5,0.5]
+        self.weight = [1,0.1,-0.1,0.2]
         self.round = 0
         with open('agents/t_080/astar_hvalue.json', 'r', encoding = 'utf-8') as hList:
             self.hValue = json.load(hList)
@@ -39,107 +32,74 @@ class myAgent():
         state = self.game_rule.generateSuccessor(state, action, self.id)
         return state.agents[self.id].score - score
     
-    # Fundamental action function for select each action in different rounds
-    def SelectAction(self,actions,pState):
-        # Update round times
-        self.round += 1
-        # Record start time
-        startTime = time.time()
-        # Best Q-value should be the max of Q(s,a), hence start with smallest
-        bestQValue = -999    
-        # Initial action set as random
-        initialAction = random.choice(actions)
-        # Best action initially set as random
-        # When over THINKTIME, random choose the action for best action
-        bestAction = random.choice(actions)
-        # The first five steps apply random action
-        if self.round < 6:
-            return initialAction
-        # compare Q-value and best action after 5 steps
-        else:
-            for action in actions:
-                # Ensure think time is not over 1s
-                if time.time() - startTime >THINKTIME:
-                    print("TIME OUT")
-                    #break
-                else:
-                    # Calculate Q-value
-                    QValue = self.CalQValue(deepcopy(pState),action,actions)
-                    # Change best Q-value to max Q-value
-                    # Change best action from random to the current action
-                    if QValue > bestQValue:
-                        bestQValue = QValue
-                        bestAction = action
-            print(time.time() - startTime)
-        return bestAction
     
-    # Function for calculating max of Q-value
-    def CalQValue(self,state,action,actions):
-        # Store feature data from DefineFeatures function into features
-        features = self.DefineFeatures(state,action,actions)
-        # initial result set as 0
+    # Fundamental action function for select each action in different rounds
+    def SelectAction(self,actions,rootstate):
+        start_time = time.time()
+        self.round += 1
+        best_Q = -99999
+        bestAction = random.choice(actions)
+        """if self.round <= 5:
+            return bestAction"""
+        for action in actions:
+            Q_value = self.CalQValue(deepcopy(rootstate),action)
+            if Q_value > best_Q:
+                best_Q = Q_value
+                bestAction = action
+        return bestAction
+
+    #cal Q value 
+    def CalQValue(self,state,action):
+        features = []
+        #ring num of player
+        if self.id == 0 : selfmark = str(2) ; oppomark = str(4)
+        else: selfring =  selfmark = str(4) ; oppomark = str(2)
+        #normalize and append into featuresList
+        next_state = deepcopy(state)
+        num = str(board_to_num(next_state.board))
+        #F1 score
+        score_diff = self.DoAction(next_state,action)
+        features.append(score_diff/3)
+        #F2 self counter
+        features.append(num.count(str(selfmark))/51)
+        #F3 oppo counter
+        features.append(num.count(str(oppomark))/51)
+        #F4 remain steps
+        features.append(self.VariationH(next_state.board)/26)
+        if len(features) != len(self.weight):
+            raise Exception(f"feature in dem {len(features)} , weight in dem {len(self.weight)}")
         result = 0
-        for i in range(len(features)):
-            result += features[i] * self.weight[i]
+        for i in range (len(features)):
+            result += features[i] *self.weight[i]
         return result
     
-    # Define features
-    def DefineFeatures(self,state,action,actions):
-        # Self counter color
-        counterColor = 2 * (self.id + 1)
-        # Oppositer counter color
-        oppoColor = 2 * ((1-self.id) + 1)
-        # Store feature values into a list
-        features = []
-        
-        # For feature 1 score
-        nextState = deepcopy(state)
-        score = self.DoAction(nextState, action)
-        features.append(score/3)
-        
-        # For feature 2 self counters
-        number = "".join(map(str,nextState.board))
-        features.append(number.count(str(counterColor))/51)
-        
-        # For feature 3 oppositer counters
-        features.append(number.count(str(oppoColor))/51)
-        
-        # For variation of heuristic
-        features.append(self.VariationH(nextState.board)/21)
-        
-        return features
     
-    # Variation of heuristic
+    """ EMPTY    = 0
+        RING_0   = 1
+        CNTR_0   = 2
+        RING_1   = 3
+        CNTR_1   = 4
+        ILLEGAL  = 5    """
     def VariationH(self,board):
-        # self ring color
-        color = str(2 * (self.id + 1) - 1)
-        # initial max Q value set as -999
-        maxQValue = -999
-        # looking for horizontial, vertical and diagonal
-        # set initial as -999
-        maxH = maxV = maxD = -999
-        for i in range(1, 10):  
+        maximum = -999
+        for i in range(1, 10):  #only loop row 1 - 9
             start = max(0, 5-i)
             end = min(7, 12-i)
             if i == 5:
                 start = 1
                 end = 6
-            for j in range(start,end):
-                # For horizontial value
-                hCode = str(self.id) + str(board[(i,j)]) + str(board[(i,j+1)]) + str(board[(i,j+2)]) + str(board[(i,j+3)]) + str(board[(i,j+4)])
-                # For verticial value
-                vCode = str(self.id) + str(board[(j,i)]) + str(board[(j+1,i)]) + str(board[(j+2,i)]) + str(board[(j+3,i)]) + str(board[(j+4,i)])
-                
-                if self.hValue.get(hCode) != None:
-                    if hCode.count(color) > 0:
-                        maxH = 10
-                    maxH += (5 - self.hValue[hCode]) * 2
-                if self.hValue.get(vCode) != None:
-                    if vCode.count(color) > 0:
-                        maxV = 10
-                    maxV += (5 - self.hValue[vCode]) * 2
-                maxQValue = max(maxQValue,maxH,maxV)
-                
+            for j in range (start,end):
+                h_code = str(self.id) + str(board[(i,j)]) + str(board[(i,j+1)]) + str(board[(i,j+2)]) + \
+                    str(board[(i,j+3)]) + str(board[(i,j+4)])
+                v_code = str(self.id) + str(board[(j,i)]) + str(board[(j+1,i)]) + str(board[(j+2,i)]) + \
+                    str(board[(j+3,i)]) + str(board[(j+4,i)])
+
+                #if have our ring, make it important
+                if self.hValue.get(h_code) != None or self.hValue.get(v_code):
+                    h = Algorithom_booster(self.hValue,self.id,h_code)
+                    v = Algorithom_booster(self.hValue,self.id,v_code)
+                    maximum = max(maximum, h, v)
+
         for i in range(4, 11):
             if i == 6 or i == 7 or i == 8:
                  start, end = [0,7]
@@ -151,18 +111,36 @@ class myAgent():
                 start, end = [0,6]
             if i == 10:
                 start, end = [1,5]
-            for j in range (start, end):
-                # for diagonal
-                dCode = str(self.id) + str(board[(i,j)]) + str(board[(i-1,j+1)]) + str(board[(i-2,j+2)]) + str(board[(i-3,j+3)]) + str(board[(i-4,j+4)])
-                
-                if self.hValue.get(dCode) != None:
-                    if dCode.count(color) > 0:
-                        maxD = 10
-                    maxD += (5 - self.hValue[dCode]) * 2
-                maxQValue = max(maxQValue,maxD)
-        
-        return maxQValue
-                
-                        
-    
-                    
+            for j in range (start,end):
+                d_code = str(self.id) + str(board[(i,j)]) + str(board[(i-1,j+1)]) + str(board[(i-2,j+2)]) + \
+                    str(board[(i-3,j+3)]) + str(board[(i-4,j+4)])
+                if self.hValue.get(d_code) != None:
+                    maximum = max(maximum,Algorithom_booster(self.hValue,self.id,d_code))
+        return maximum
+
+#extra weight on sequence with ring
+def Algorithom_booster(hValue,selfid,code):
+        #ring num of player
+        if selfid == 0 : selfring = str(1) ; opporing = str(3) ; selfmark = str(2) ; oppomark = str(4)
+        else: selfring = str(3) ; opporing = str(1) ; selfmark = str(4) ; oppomark = str(2)
+        num = (6 - hValue[code])
+        #if have our ring, make it important
+        if code.count(selfring) > 0:
+            if code.count(selfmark) == 2:
+                num += 5
+            if code.count(selfmark) >= 3:
+                num += 10
+        #if have 1 or more opporing and  2 or more their marker:
+        if code.count(oppomark) > 3:
+            num += 10
+        return num
+
+##helper func
+def board_to_num(board):
+    list = board.tolist()
+    num = []
+    for i in list:
+        num += i
+    temp = [str(i) for i in num]
+    num = int(''.join(temp))
+    return num
