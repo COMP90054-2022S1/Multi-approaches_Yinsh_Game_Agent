@@ -8,7 +8,7 @@ from priorityQ import PriorityQueue
 
 
 
-THINKTIME = 0.95
+THINKTIME = 0.85
 
 # Defines this agent.
 class myAgent():
@@ -36,7 +36,6 @@ class myAgent():
         start_time = time.time()
         P_queue = PriorityQueue()   ##openlist
         P_queue.push((deepcopy(rootstate), 0, []), 0)
-        print(rootstate.board)
         # Conduct astar starting from rootstate.
         best_g = dict() #maps states to numbers
         counter = 0
@@ -44,7 +43,6 @@ class myAgent():
             counter += 1
             state, gn, path = P_queue.pop() # Pop the next node (state, path) in the queue.
             num = board_to_num(state.board)
-            #print(f"num is {num}")
             if (num not in best_g or (gn < best_g[num])):
                 best_g[num] = gn
                 new_actions = self.GetActions(state) # Obtain new actions available to the agent in this state.
