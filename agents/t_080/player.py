@@ -41,7 +41,7 @@ class myAgent():
         bestAction = random.choice(actions)
         """##play strategy at first 5 rings position
         if self.round <= 5:
-            return self.RingStrategy(actions,rootstate, self.round)"""
+            return self.RingStrategy(actions,rootstate, self.round)
 
         ##block oppo when they hValue == 1 when self hValue >1
         h = self.cal_H_for_both(rootstate)
@@ -51,7 +51,7 @@ class myAgent():
               print("block?!")
               ans = self.blockOppo(rootstate,actions)
               if ans != None: 
-                  return ans
+                  return ans"""
         while time.time()-start_time < THINKTIME:
             for action in actions:
                 Q_value = self.CalQValue(deepcopy(rootstate),action)
@@ -257,9 +257,9 @@ def Algorithom_booster(hValue,selfid,code):
                 num += 5
             if code.count(selfmark) >= 3:
                 num += 10
-        """#if have 1 or more opporing and  2 or more their marker:
+        #if have 1 or more opporing and  2 or more their marker:
         if code.count(oppomark) > 3:
-            num += 10"""
+            num += 10
         return num
 
 ##helper func
