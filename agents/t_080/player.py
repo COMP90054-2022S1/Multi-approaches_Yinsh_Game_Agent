@@ -17,7 +17,7 @@ class myAgent():
         
         self.weight = [1,0.1,-0.1,0.2]
         self.round = 0
-        with open('agents/t_080/astar_hValue.json', 'r', encoding = 'utf-8') as hList:
+        with open('agents/t_080/astar_hvalue.json', 'r', encoding = 'utf-8') as hList:
             self.hValue = json.load(hList)
         with open('agents/t_080/weight.json', 'r', encoding = 'utf-8') as wList:
             self.weight = json.load(wList)['weight']
